@@ -196,34 +196,19 @@ FROM rental
 GROUP BY category_id
 ORDER BY category_revenue DESC
 LIMIT 5;
+                             
 -- 8a. In your new role as an executive, you would like to have an easy way of viewing the Top five genres by gross revenue. Use the solution from the problem above to create a view. If you haven't solved 7h, you can substitute another query to create a view.
 
-CREATE 
-    ALGORITHM
-= UNDEFINED 
-    DEFINER = `root`@`localhost` 
-    SQL SECURITY DEFINER
-VIEW `sakila`.`top_5_geners` AS
-SELECT
-    `sakila
-`.`category`.`category_id` AS `category_id`,
-        `sakila`.`category`.`name` AS `name`,
-        SUM
-(`sakila`.`payment`.`amount`) AS `category_revenue`
-    FROM
-((((`sakila`.`rental`
-        JOIN `sakila`.`payment` ON
-((`sakila`.`payment`.`rental_id` = `sakila`.`rental`.`rental_id`)))
-        JOIN `sakila`.`inventory` ON
-((`sakila`.`inventory`.`inventory_id` = `sakila`.`rental`.`inventory_id`)))
-        JOIN `sakila`.`film_category` ON
-((`sakila`.`film_category`.`film_id` = `sakila`.`inventory`.`film_id`)))
-        JOIN `sakila`.`category` ON
-((`sakila`.`category`.`category_id` = `sakila`.`film_category`.`category_id`)))
-    GROUP BY `sakila`.`category`.`category_id`
-    ORDER BY `category_revenue` DESC
-    LIMIT 5;
-
+CREATE VIEW top_five_films AS (
+SELECT category.name AS 'Top 5 Genres', sum(payment.amount) as 'Total Revenue'
+FROM category
+JOIN film_category ON category.category_id = film_category.category_id
+JOIN inventory ON film_category.film_id = inventory.film_id
+JOIN rental ON inventory.inventory_id = rental.inventory_id
+JOIN payment ON rental.rental_id = payment.rental_id
+GROUP BY category.name
+ORDER BY sum(payment.amount) LIMIT 5);
+                             
 -- 8b. How would you display the view that you created in 8a?
 SELECT *
 FROM top_5_geners;
