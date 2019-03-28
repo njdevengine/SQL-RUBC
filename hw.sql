@@ -162,7 +162,7 @@ FROM category
 WHERE category.name = "Family");
 
 -- 7e. Display the most frequently rented movies in descending order.
-SELECT * , count(*) AS times_rented
+SELECT film.title, count(*) AS times_rented
 FROM sakila.rental JOIN film
     ON film.film_id = rental.inventory_id
 GROUP BY inventory_id
