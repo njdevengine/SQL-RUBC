@@ -68,75 +68,72 @@ WHERE first_name = "HARPO";
 CREATE TABLE
 IF NOT EXISTS `address`
 (
-  `address_id` SMALLINT
-(5) unsigned NOT NULL AUTO_INCREMENT,
-  `address` VARCHAR
-(50) NOT NULL,
-  `address2` VARCHAR
-(50) DEFAULT NULL,
-  `district` VARCHAR
-(20) NOT NULL,
-  `city_id` SMALLINT
-(5) unsigned NOT NULL,
-  `postal_code` VARCHAR
-(10) DEFAULT NULL,
-  `phone` VARCHAR
-(20) NOT NULL,
-  `location` GEOMETRY NOT NULL,
-  `last_update` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON
+`address_id` SMALLINT (5) unsigned NOT NULL AUTO_INCREMENT,
+`address` VARCHAR (50) NOT NULL,
+`address2` VARCHAR (50) DEFAULT NULL,
+`district` VARCHAR (20) NOT NULL,
+`city_id` SMALLINT (5) unsigned NOT NULL,
+`postal_code` VARCHAR (10) DEFAULT NULL,
+`phone` VARCHAR (20) NOT NULL,
+`location` GEOMETRY NOT NULL,
+`last_update` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON
 UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY
-(`address_id`),
-  KEY `idx_fk_city_id`
-(`city_id`),
-  SPATIAL KEY `idx_location`
-(`location`),
-  CONSTRAINT `fk_address_city` FOREIGN KEY
-(`city_id`) REFERENCES `city`
-(`city_id`) ON
-UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=606 DEFAULT CHARSET
-=utf8;
+PRIMARY KEY (`address_id`),
+KEY `idx_fk_city_id` (`city_id`),
+SPATIAL KEY `idx_location` (`location`),
+CONSTRAINT `fk_address_city` FOREIGN KEY (`city_id`) REFERENCES `city`
+(`city_id`)
+ON UPDATE CASCADE
+)
+ENGINE=InnoDB AUTO_INCREMENT=606 DEFAULT CHARSET = utf8;
 
 -- 6a. Use `JOIN` to display the first and last names, as well as the address, of each staff member. Use the tables `staff` and `address`
 SELECT first_name, last_name, address.address
-FROM
-    staff JOIN address ON staff.address_id = address.address_id;
+FROM staff
+JOIN address
+ON staff.address_id = address.address_id;
 
 -- 6b. Use `JOIN` to display the total amount rung up by each staff member in August of 2005. Use tables `staff` and `payment`.
 SELECT staff.staff_id, first_name, last_name, sum(amount)
-FROM staff JOIN payment ON staff.staff_id = payment.staff_id
+FROM staff
+JOIN payment
+ON staff.staff_id = payment.staff_id
 GROUP BY staff.staff_id;
 
 -- 6c. List each film and the number of actors who are listed for that film. Use tables `film_actor` and `film`. Use inner join.
 SELECT film.film_id, film.title, film.release_year, count(actor_id) AS Number_of_Actors
-FROM film JOIN film_actor ON film_actor.film_id = film.film_id
+FROM film
+JOIN film_actor
+ON film_actor.film_id = film.film_id
 GROUP BY (film.film_id);
 
 -- 6d. How many copies of the film `Hunchback Impossible` exist in the inventory system?
-SELECT film.title, count(inventory.inventory_id) AS Number_of_Copies
-FROM inventory JOIN film ON inventory.film_id = film.film_id
+SELECT film.title, COUNT(inventory.inventory_id) AS Number_of_Copies
+FROM inventory
+JOIN film
+ON inventory.film_id = film.film_id
 WHERE film.title = "Hunchback Impossible";
 
 -- 6e. Using the tables `payment` and `customer` and the `JOIN` command, list the total paid by each customer. List the customers alphabetically by last name
 SELECT payment.customer_id, concat(first_name,' ', customer.last_name) AS customer_name, sum(amount)
-FROM
-    payment JOIN customer ON payment.customer_id = customer.customer_id
+FROM payment
+JOIN customer
+ON payment.customer_id = customer.customer_id
 GROUP BY customer_id;
 
 -- 7a. The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters `K` and `Q` have also soared in popularity. Use subqueries to display the titles of movies starting with the letters `K` and `Q` whose language is English.
-SELECT *
-FROM film
+SELECT * FROM film
 WHERE
-title IN (SELECT title
-FROM film
-WHERE (title LIKE "K%" OR title LIKE "Q%") AND (language_id = 1));
+title IN
+(SELECT title FROM film
+WHERE (title LIKE "K%" OR title LIKE "Q%")
+AND (language_id = 1));
 
 -- 7b. Use subqueries to display all actors who appear in the film `Alone Trip`.
 SELECT *
-FROM film join film_actor
-    ON film.film_id = film_actor.film_id
-WHERE film.title in (SELECT title
+FROM film JOIN film_actor
+ON film.film_id = film_actor.film_id
+WHERE film.title IN (SELECT title
 FROM film
 WHERE
 film.title = "Alone Trip");
@@ -144,7 +141,7 @@ film.title = "Alone Trip");
 -- You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers. Use joins to retrieve this information.
 SELECT *
 FROM customer JOIN address
-    ON customer.address_id = address.address_id
+ON customer.address_id = address.address_id
 WHERE
 city_id IN (SELECT city_id
 FROM city JOIN country ON city.country_id = country.country_id
@@ -156,7 +153,7 @@ WHERE country = "Canada"))
 -- 7d. Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as _family_ films.
 SELECT *
 FROM film JOIN film_category
-    ON film.film_id = film_category.film_id
+ON film.film_id = film_category.film_id
 WHERE category_id IN (SELECT category_id
 FROM category
 WHERE category.name = "Family");
@@ -164,41 +161,40 @@ WHERE category.name = "Family");
 -- 7e. Display the most frequently rented movies in descending order.
 SELECT film.title, count(*) AS times_rented
 FROM sakila.rental JOIN film
-    ON film.film_id = rental.inventory_id
+ON film.film_id = rental.inventory_id
 GROUP BY inventory_id
 ORDER BY times_rented DESC;
 
 -- 7f. Write a query to display how much business, in dollars, each store brought in.
 SELECT store_id, sum(amount) AS total_sales
 FROM payment JOIN staff
-    ON payment.staff_id = staff.staff_id
+ON payment.staff_id = staff.staff_id
 WHERE store_id IN 
 (SELECT store.store_id
 FROM staff JOIN store
-    ON store.store_id = staff.store_id )
-group by store_id;
+ON store.store_id = staff.store_id )
+GROUP BY store_id;
 
 --  7g. Write a query to display for each store its store ID, city, and country.
 SELECT store_id, country, city
 FROM country
-    JOIN city ON country.country_id = city.country_id
-    JOIN address ON address.city_id = city.city_id
-    JOIN store ON store.address_id = address.address_id;
+JOIN city ON country.country_id = city.country_id
+JOIN address ON address.city_id = city.city_id
+JOIN store ON store.address_id = address.address_id;
 
 -- 7h. List the top five genres in gross revenue in descending order.
 -- (**Hint**: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
 SELECT category.category_id, name, sum(amount) AS category_revenue
 FROM rental
-    JOIN payment ON payment.rental_id = rental.rental_id
-    JOIN inventory ON inventory.inventory_id = rental.inventory_id
-    JOIN film_category ON film_category.film_id = inventory.film_id
-    JOIN category ON category.category_id = film_category.category_id
+JOIN payment ON payment.rental_id = rental.rental_id
+JOIN inventory ON inventory.inventory_id = rental.inventory_id
+JOIN film_category ON film_category.film_id = inventory.film_id
+JOIN category ON category.category_id = film_category.category_id
 GROUP BY category_id
 ORDER BY category_revenue DESC
 LIMIT 5;
                              
 -- 8a. In your new role as an executive, you would like to have an easy way of viewing the Top five genres by gross revenue. Use the solution from the problem above to create a view. If you haven't solved 7h, you can substitute another query to create a view.
-
 CREATE VIEW top_five AS (
 SELECT category.name AS 'Top 5 Genres', sum(payment.amount) as 'Total Revenue'
 FROM category
@@ -214,5 +210,4 @@ SELECT *
 FROM top_five;
 
 -- 8c. You find that you no longer need the view `top_five_genres`. Write a query to delete it.
-DROP VIEW IF EXISTS
-    top_five;
+DROP VIEW IF EXISTS top_five;
