@@ -183,7 +183,7 @@ SELECT store_id, country, city
 FROM country
     JOIN city ON country.country_id = city.country_id
     JOIN address ON address.city_id = city.city_id
-    JOIN store ON store.address_id = address.address_id
+    JOIN store ON store.address_id = address.address_id;
 
 -- 7h. List the top five genres in gross revenue in descending order.
 -- (**Hint**: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
